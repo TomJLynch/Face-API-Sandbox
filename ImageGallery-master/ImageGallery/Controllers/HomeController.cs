@@ -1,5 +1,6 @@
 ﻿using ImageGallery.Services;
 using System;
+using System.Drawing;
 using System.IO;
 using System.Threading.Tasks;
 using System.Web;
@@ -21,6 +22,19 @@ namespace ImageGallery.Controllers
         public async Task<ActionResult> Index()
         {
             var images = await _storageService.GetImagesAsync();
+            foreach (var image in images)
+            {
+                System.Net.WebRequest request = System.Net.WebRequest.Create(image.ImagePath);
+                System.Net.WebResponse response = request.GetResponse();
+                System.IO.Stream responseStream = response.GetResponseStream();
+                Bitmap img = new Bitmap(responseStream);
+
+                using (var g = Graphics.FromImage(img))
+                {
+                    g.DrawLine(Pens.Red, new Point(10, 10), new Point(100, 100));
+                }
+                img.Save(@"C:\Temp\img2.png");
+            }
             return View(images);
         }
 
